@@ -7,6 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import vn.edu.crs.courseservice.dto.CourseDTO;
 import vn.edu.crs.courseservice.service.CourseService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -17,11 +21,7 @@ public class CourseController {
 
     private final CourseService courseService;
 
-    // 1. Read All (GET)
-    @GetMapping
-    public ResponseEntity<List<CourseDTO>> getAll() {
-        return ResponseEntity.ok(courseService.getAll());
-    }
+
 
     // 2. Read One (GET by ID)
     @GetMapping("/{id}")
@@ -48,5 +48,19 @@ public class CourseController {
         courseService.delete(id);
         // HttpStatus.NO_CONTENT sẽ trả về mã 204
         return ResponseEntity.noContent().build();
+    }
+    @GetMapping
+    public ResponseEntity<Page<CourseDTO>> getAllCourses(
+            @RequestParam(required = false) String tenMonHoc,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "5") int size) {
+
+        // Tạo Pageable sắp xếp theo ID giảm dần (mới nhất lên đầu)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Gọi service
+        Page<CourseDTO> result = courseService.search(tenMonHoc, pageable);
+
+        return ResponseEntity.ok(result);
     }
 }

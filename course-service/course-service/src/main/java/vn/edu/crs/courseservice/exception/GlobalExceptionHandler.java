@@ -31,4 +31,10 @@ public class GlobalExceptionHandler {
 
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+    // Bổ sung handler cho lỗi hết chỗ (IllegalStateException) từ reserveSeat
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, String>> handleConflict(IllegalStateException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT) // HTTP Status 409
+                .body(Map.of("message", ex.getMessage()));
+    }
 }
